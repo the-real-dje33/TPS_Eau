@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Centrales Nucléaires — Température des Cours d'Eau</title>
+
+  <!-- Leaflet CSS (CDN) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+
+  <!-- Styles du site -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ── Header ── -->
+  <header>
+    <div class="header-left">
+      <div class="header-icon"><img src="./img/plante-nucleaire.png" /></div>
+      <div class="header-text">
+        <h1>Centrales Nucléaires — Température des Cours d'Eau - En cours de developpement</h1>
+        <p>Données Hub'Eau (BRGM · OFB) · Carte OpenStreetMap</p>
+      </div>
+    </div>
+    <div id="load-status">
+      <div class="spinner" id="spinner"></div>
+      <span id="load-text">Chargement…</span>
+    </div>
+  </header>
+
+  <!-- ── Layout principal ── -->
+  <div id="main">
+
+    <!-- Sidebar -->
+    <div id="sidebar">
+      <div class="sidebar-title">🏭 Centrales — 18 actives · 1 fermée</div>
+      <div id="plants-list"></div>
+
+      <!-- Légende -->
+      <div id="legend-box">
+        <div class="legend-title">Température de l'eau</div>
+        <div class="legend-grid">
+          <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div>&lt; 10 °C</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#22c55e"></div>10–15 °C</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#eab308"></div>15–20 °C</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#f97316"></div>20–25 °C</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div>&gt; 25 °C ⚠️</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#475569"></div>Aucune donnée</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Carte -->
+    <div id="map"></div>
+
+  </div>
+
+  <!-- Leaflet JS (CDN) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+  <!-- Script du site -->
+  <script src="script.js"></script>
+
+</body>
+</html>
