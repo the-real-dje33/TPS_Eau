@@ -54,14 +54,20 @@ function capitalize(s) {
 }
 
 function freshnessInfo(dateStr) {
-  const days = (Date.now() - new Date(dateStr)) / 86400000;
+  const date = new Date(dateStr);
+  if (Number.isNaN(date.valueOf())) {
+    return { icon: '⚠️', color: '#f97316', label: 'Date inconnue' };
+  }
+
+  const days = (Date.now() - date) / 86400000;
   if (days <= 1) return { icon: '🟢', color: '#22c55e', label: `Il y a ${Math.round(days * 24)}h` };
   if (days <= 7) return { icon: '🟢', color: '#22c55e', label: `Il y a ${Math.round(days)}j` };
   return { icon: '🟠', color: '#f97316', label: `Données anciennes` };
 }
 
-function makeIcon(color, active) {
-  const html = `<div style="width:34px;height:34px;background:${color}cc;border:2px solid ${color};border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;">☢</div>`;
+function makeIcon(color, active = true) {
+  const opacity = active ? 1 : 0.35;
+  const html = `<div style="width:34px;height:34px;background:${color}cc;opacity:${opacity};border:2px solid ${color};border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;">☢</div>`;
   return L.divIcon({ html, iconSize: [34, 34], iconAnchor: [17, 17], popupAnchor: [0, -20] });
 }
 
@@ -115,15 +121,22 @@ async function loadPlant(plant, markers) {
 
   if (!result) {
     ctEl.innerHTML = `<span class="text-dim">Indisponible</span>`;
-    return;
+    return false;
   }
 
-  const { reading, station } = result;
-  const { color, bg } = tempInfo(reading.resultat);
+  const { reading } = result;
+  const temperature = Number(reading.resultat);
+  if (!Number.isFinite(temperature)) {
+    ctEl.innerHTML = `<span class="text-dim">Donnée invalide</span>`;
+    return false;
+  }
+
+  const { color, bg } = tempInfo(temperature);
   const fresh = freshnessInfo(reading.date_mesure_temp);
 
-  ctEl.innerHTML = `<span style="background:${bg};color:${color};padding:2px 6px;border-radius:4px">🌡️ ${reading.resultat.toFixed(1)}°C</span> ${fresh.icon}`;
+  ctEl.innerHTML = `<span style="background:${bg};color:${color};padding:2px 6px;border-radius:4px">🌡️ ${temperature.toFixed(1)}°C</span> ${fresh.icon}`;
   markers[plant.id].setIcon(makeIcon(color, plant.active));
+  return true;
 }
 
 /* =============================================
@@ -135,6 +148,8 @@ function init() {
   
   const markers = {};
   const list = document.getElementById('plants-list');
+  const statusEl = document.getElementById('load-status');
+  const statusText = document.getElementById('load-text');
 
   PLANTS.forEach(plant => {
     const card = document.createElement('div');
@@ -144,7 +159,13 @@ function init() {
     markers[plant.id] = L.marker([plant.lat, plant.lon], { icon: makeIcon('#475569', plant.active) }).addTo(map);
   });
 
-  PLANTS.forEach(p => loadPlant(p, markers));
+  const loaders = PLANTS.map(p => loadPlant(p, markers));
+  Promise.allSettled(loaders).finally(() => {
+    if (statusText) statusText.textContent = 'Terminé';
+    if (statusEl) statusEl.style.opacity = '0.7';
+    const spinner = document.getElementById('spinner');
+    if (spinner) spinner.style.display = 'none';
+  });
 }
 
 document.addEventListener('DOMContentLoaded', init);
